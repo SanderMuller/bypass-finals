@@ -25,7 +25,7 @@ The easiest way to install BypassFinals is via Composer. Just run the following 
 composer require dg/bypass-finals --dev
 ```
 
-It pretty much runs everywhere: PHP 7.1 through 8.3 are all supported!
+It pretty much runs everywhere: PHP 7.1 through 8.4 are all supported!
 
  <!---->
 
@@ -53,7 +53,7 @@ To narrow down the application scope of BypassFinals, use a whitelist to specify
 
 ```php
 DG\BypassFinals::allowPaths([
-    '*/Nette/*',
+	'*/Nette/*',
 ]);
 ```
 
@@ -73,6 +73,38 @@ For integration with PHPUnit 10 or newer, simply add BypassFinals as an extensio
 	<bootstrap class="DG\BypassFinals\PHPUnitExtension"/>
 </extensions>
 ```
+
+Optionally you can configure BypassFinals in your `phpunit.xml` file:
+
+```xml
+<extensions>
+	<bootstrap class="DG\BypassFinals\PHPUnitExtension">
+		<parameter name="bypassFinal" value="true"/>
+		<parameter name="bypassReadOnly" value="false"/>
+		<parameter name="cacheDirectory" value="./cache"/>
+	</bootstrap>
+</extensions>
+```
+
+ <!---->
+
+Troubleshooting
+---------------
+
+If you encounter issues with BypassFinals not working as expected, you can use the `debugInfo()` method to gain insights into its internal state. Calling this method will output valuable information to help diagnose the problem:
+
+```php
+DG\BypassFinals::debugInfo();
+```
+
+This will display:
+
+- Configuration: Whether BypassFinals is enabled for removing `final` and/or `readonly` keywords.
+- BypassFinals startup call stack: The sequence of function calls that led to `DG\BypassFinals::enable()`, helping you verify when and where BypassFinals was started.
+- Classes loaded before BypassFinals startup: A list of classes that were already loaded in PHP before BypassFinals was started. Keywords in these classes cannot be removed, as the classes are already defined. This can help identify potential conflicts or reasons why certain classes aren't being modified.
+- Modified files: A list of the files that BypassFinals has successfully modified. If the file containing a class you expect to be modified isn't in this list, it suggests a problem with path matching or the timing of the BypassFinals startup.
+
+By examining this output, you can better understand how BypassFinals is configured and whether it's operating on the intended files and classes. This can significantly speed up the process of identifying and resolving issues.
 
  <!---->
 
